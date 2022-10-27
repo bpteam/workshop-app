@@ -1,0 +1,42 @@
+parameters:
+  container.dumper.inline_factories: true
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  AppName\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Domain/Entity/'
+      - '../src/Application/Kernel.php'
+
+  Psr\Container\ContainerInterface: '@service_container'
+
+  AppName\Domain\Repository\MessageRepositoryInterface: '@AppName\Infrastructure\Repository\MessageCachedRepository'
+
+when@dev:
+  services:
+    _defaults:
+      autowire: true
+      autoconfigure: true
+
+    AppName\Tests\Fixtures\:
+      resource: '../tests/Fixtures/'
+    AppName\Tests\Fixtures\Purger:
+      tags:
+        - { name: 'doctrine.fixtures.purger_factory', alias: 'wo_dict_purger' }
+
+when@test:
+  services:
+    _defaults:
+      autowire: true
+      autoconfigure: true
+
+    AppName\Tests\Fixtures\:
+      resource: '../tests/Fixtures/'
+    AppName\Tests\Fixtures\Purger:
+      tags:
+        - { name: 'doctrine.fixtures.purger_factory', alias: 'wo_dict_purger' }

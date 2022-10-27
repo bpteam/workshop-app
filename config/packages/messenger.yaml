@@ -1,0 +1,57 @@
+framework:
+  messenger:
+    serializer:
+      symfony_serializer:
+        format: json
+        context: { }
+    failure_transport: failed
+    buses:
+      messenger.bus.default:
+        default_middleware: false
+        middleware:
+          - dispatch_after_current_bus
+          - failed_message_processing_middleware
+          - doctrine_ping_connection
+          - send_message
+          - handle_message
+
+    transports:
+      failed:
+        dsn: '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
+        retry_strategy:
+          service: 'AppName\Infrastructure\Messenger\InfinityRetry'
+        options:
+          exchange:
+            type: topic
+            name: app_name.failed_exchange
+          queues:
+            operation.failed_messages:
+              binding_keys:
+                - '#'
+      # https://symfony.com/doc/current/messenger.html#transport-configuration
+      event_bus:
+        dsn: '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
+        retry_strategy:
+          max_retries: 3
+          delay: 1000
+          multiplier: 3
+        options:
+          exchange:
+            name: app_name
+            type: topic
+          queues:
+            app_name.notify_about.new_message:
+              binding_keys:
+                - !php/const AppName\Domain\Event\NewMessage::NAME
+      # sync: 'sync://'
+
+    routing:
+      'AppName\Domain\Event\EventInterface':
+        - event_bus
+
+when@test:
+  framework:
+    messenger:
+      transports:
+        # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
+        async: 'test://'

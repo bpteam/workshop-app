@@ -1,0 +1,9 @@
+doctrine_migrations:
+    migrations_paths:
+        'DoctrineMigrations': '%kernel.project_dir%/migrations'
+    storage:
+        table_storage:
+            table_name: 'migrations_app_name'
+    enable_profiler: '%kernel.debug%'
+    transactional: false
+    organize_migrations: "BY_YEAR"

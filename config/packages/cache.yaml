@@ -1,0 +1,47 @@
+parameters:
+  env(MEMCACHED_URL): ''
+
+framework:
+  cache:
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Memcached:
+    class: Memcached
+    factory: [ 'Symfony\Component\Cache\Adapter\MemcachedAdapter', 'createConnection' ]
+    arguments:
+      - [ '%env(MEMCACHED_URL)%' ]
+
+  app.cache.adapter.array:
+    class: Symfony\Component\Cache\Adapter\ArrayAdapter
+    arguments:
+      $defaultLifetime: 10
+      $storeSerialized: false
+      $maxLifetime: 100
+      $maxItems: 3000
+
+  app.cache.adapter.apcu:
+    class: Symfony\Component\Cache\Adapter\ApcuAdapter
+    arguments:
+      $defaultLifetime: 1200
+
+  app.cache.adapter.memcached:
+    class: Symfony\Component\Cache\Adapter\MemcachedAdapter
+    arguments:
+      $client: '@Memcached'
+
+  Symfony\Component\Cache\Adapter\ChainAdapter:
+    arguments:
+      $defaultLifetime: 1200
+      $adapters:
+        - '@app.cache.adapter.array'
+        - '@app.cache.adapter.memcached'
+
+  Symfony\Component\Cache\Adapter\TagAwareAdapterInterface:
+    class: Symfony\Component\Cache\Adapter\TagAwareAdapter
+    arguments:
+      $itemsPool: '@Symfony\Component\Cache\Adapter\ChainAdapter'
+      $tagsPool: '@Symfony\Component\Cache\Adapter\ChainAdapter'

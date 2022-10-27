@@ -1,0 +1,20 @@
+#---
+#
+#variables:
+#  APP_ENV: k8s/clusters
+#  CLUSTER_NAMESPACE: "hello_world"
+#  CLUSTER: ___
+#  DEPLOY_BY_RELEASEBOT: 1
+#  DISABLE_PHP_UNIT_TESTS: 1
+#  K8S_REPO: __.git
+#  PUSH_TO_PRODUCTION_REGISTRY: 1
+#  PUSH_TO_ARTIFACT_REGISTRY: 1
+#  TEMPLATE_PATH: "___"
+#
+#
+#include:
+#  - project: __
+#    ref: master
+#    file:
+#      - merged_pipelines/php.yml
+#
